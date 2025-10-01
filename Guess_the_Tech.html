@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Techmoji Challenge</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #e0f7fa;
+      margin: 0;
+    }
+    .container {
+      text-align: center;
+      background: #ffffff;
+      padding: 40px 60px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      width: 500px;
+      max-width: 90%;
+    }
+    h1 {
+      color: #007bff;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    .emoji {
+      font-size: 4rem;
+      margin: 20px 0;
+    }
+    input {
+      padding: 15px;
+      font-size: 1.2rem;
+      margin-top: 10px;
+      width: 80%;
+      border: 2px solid #007bff;
+      border-radius: 10px;
+      text-align: center;
+    }
+    button {
+      padding: 12px 25px;
+      margin: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      background: #007bff;
+      color: white;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .score {
+      margin-top: 20px;
+      font-size: 1.3rem;
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🔍 Techmoji Challenge</h1>
+    <div class="emoji" id="emoji"></div>
+    <input type="text" id="guessInput" placeholder="Your answer...">
+    <br>
+    <button onclick="checkGuess()">Submit</button>
+    <button onclick="skipWord()">Skip</button>
+    <button onclick="hintLetter()">Hint (-2 per letter)</button>
+    <button onclick="restartGame()">Restart</button>
+    <div class="result" id="result"></div>
+    <div class="score" id="score">Score: 0</div>
+  </div>
+
+  <script>
+    const allWords = [
+      {emoji: "🐍💻", word: "Python", alternatives: ["python"]},
+      {emoji: "🇨💻", word: "C", alternatives: ["c"]},
+      {emoji: "➕➕💻", word: "C++", alternatives: ["c++"]},
+      {emoji: "☕💻", word: "Java", alternatives: ["java"]},
+      {emoji: "🌐📝", word: "HTML", alternatives: ["html"]},
+      {emoji: "🎨🌐", word: "CSS", alternatives: ["css"]},
+      {emoji: "⚡💻", word: "JavaScript", alternatives: ["javascript","js"]},
+      {emoji: "🐘💻", word: "PHP", alternatives: ["php"]},
+      {emoji: "💾📊", word: "SQL", alternatives: ["sql"]},
+      {emoji: "📊📈", word: "Data", alternatives: ["data","données"]},
+      {emoji: "📚⚙️", word: "Algo", alternatives: ["algo","algorithm","algorithme"]},
+      {emoji: "💻📖", word: "Programmation", alternatives: ["programmation","programming"]},
+      {emoji: "⌨️📄", word: "Code", alternatives: ["code"]},
+      {emoji: "🐞🚫", word: "Bug", alternatives: ["bug"]},
+      {emoji: "🌍💻", word: "Web", alternatives: ["web"]},
+      {emoji: "📱💡", word: "App", alternatives: ["app","application"]},
+      {emoji: "☁️💾", word: "Cloud", alternatives: ["cloud"]},
+      {emoji: "🔗📱", word: "API", alternatives: ["api"]},
+      {emoji: "🤖🧠", word: "IA", alternatives: ["ia","ai"]},
+      {emoji: "🐙📂", word: "Git", alternatives: ["git"]},
+      {emoji: "🐧💻", word: "Linux", alternatives: ["linux"]},
+      {emoji: "🔐🌍", word: "Réseau", alternatives: ["reseau","network"]},
+      {emoji: "📂💾", word: "Base", alternatives: ["base","database"]},
+      {emoji: "🔤📦", word: "Variable", alternatives: ["variable"]},
+      {emoji: "🔁", word: "Loop", alternatives: ["loop","boucle"]},
+      {emoji: "📚🔢", word: "Array", alternatives: ["array","tableau"]},
+      {emoji: "⚙️()", word: "Function", alternatives: ["function","fonction"]}
+    ];
+
+    let score = 0;
+    let wordsPool = [];
+    let currentWord = null;
+    let hintIndex = 0;
+
+    function newWord() {
+      if (wordsPool.length === 0) {
+        document.getElementById("emoji").innerText = "🎉 Finished all words!";
+        document.getElementById("result").innerText = "Final Score: " + score;
+        return;
+      }
+
+      currentWord = wordsPool.splice(Math.floor(Math.random() * wordsPool.length), 1)[0];
+      hintIndex = 0;
+      document.getElementById("emoji").innerText = currentWord.emoji;
+      document.getElementById("guessInput").value = "";
+      document.getElementById("result").innerText = "";
+    }
+
+    function checkGuess() {
+      const guess = document.getElementById("guessInput").value.trim().toLowerCase();
+      const resultDiv = document.getElementById("result");
+
+      if (currentWord.alternatives.includes(guess)) {
+        score += 5;
+        resultDiv.innerHTML = "✅ Correct! The word is " + currentWord.word;
+        updateScore();
+        setTimeout(newWord, 1500);
+      } else {
+        score -= 5;
+        resultDiv.innerHTML = "❌ Wrong! Try again.";
+        updateScore();
+      }
+    }
+
+    function skipWord() {
+      newWord();
+    }
+
+    function hintLetter() {
+      if (hintIndex < currentWord.word.length) {
+        hintIndex++;
+        score -= 2;
+        document.getElementById("result").innerText = "Hint: " + currentWord.word.substring(0, hintIndex) + "...";
+        updateScore();
+      } else {
+        document.getElementById("result").innerText = "All letters revealed!";
+      }
+    }
+
+    function updateScore() {
+      document.getElementById("score").innerText = "Score: " + score;
+    }
+
+    function restartGame() {
+      score = 0;
+      wordsPool = [...allWords]; // recrée le pool complet
+      updateScore();
+      newWord();
+    }
+
+    // Initialiser le jeu
+    restartGame();
+  </script>
+
+</body>
+</html>
